@@ -1,23 +1,23 @@
 const bells = new Audio('./sounds/bell.wav');
 const startBtn = document.querySelector('.btn-start');
-const session = document.querySelector('.minutes');
+const timerDiv = document.querySelector('.timer');
 
 let state = {
   totalSeconds: 0,
   isActive: false,
   intervalId: null,
+  sessionSeconds: 5 * 60,
 };
 
 const format = (number) => {
   return String(number).padStart(2, '0');
 }
 const updateSeconds = () => {
-  const timerDiv = document.querySelector('.timer');
   state.totalSeconds--;
 
   let minutesLeft = Math.floor(state.totalSeconds / 60);
   let secondsLeft = state.totalSeconds % 60;
-  const timer = `${format(minutesLeft)} : ${format(secondsLeft)}`;
+  const timer = `${format(minutesLeft)}:${format(secondsLeft)}`;
   timerDiv.textContent = timer;
 
   if (state.totalSeconds === 0) {
@@ -38,11 +38,11 @@ const appTimer = () => {
     return;
   }
 
-  state.totalSeconds = +session.textContent * 60;
+  state.totalSeconds = state.totalSeconds || state.sessionSeconds;
   state.isActive = true;
   startBtn.textContent = 'Pause';
 
-  myInterval = setInterval(updateSeconds, 1000);
+  state.intervalId = setInterval(updateSeconds, 1000);
 };
 
 startBtn.addEventListener('click', appTimer);
