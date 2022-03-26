@@ -1,41 +1,48 @@
 const bells = new Audio('./sounds/bell.wav');
 const startBtn = document.querySelector('.btn-start');
 const session = document.querySelector('.minutes');
-let myInterval;
-let state = true;
 
-const appTimer = () => {
-  const sessionAmount = Number.parseInt(session.textContent);
+let state = {
+  totalSeconds: 0,
+  isActive: false,
+  intervalId: null,
+};
 
-  if (state) {
-    state = false;
-    let totalSeconds = sessionAmount * 60;
+const format = (number) => {
+  return String(number).padStart(2, '0');
+}
+const updateSeconds = () => {
+  const timerDiv = document.querySelector('.timer');
+  state.totalSeconds--;
 
-    const updateSeconds = () => {
-      const minuteDiv = document.querySelector('.minutes');
-      const secondDiv = document.querySelector('.seconds');
+  let minutesLeft = Math.floor(state.totalSeconds / 60);
+  let secondsLeft = state.totalSeconds % 60;
+  const timer = `${format(minutesLeft)} : ${format(secondsLeft)}`;
+  timerDiv.textContent = timer;
 
-      totalSeconds--;
-
-      let minutesLeft = Math.floor(totalSeconds / 60);
-      let secondsLeft = totalSeconds % 60;
-
-      if (secondsLeft < 10) {
-        secondDiv.textContent = '0' + secondsLeft;
-      } else {
-        secondDiv.textContent = secondsLeft;
-      }
-      minuteDiv.textContent = `${minutesLeft}`;
-
-      if (minutesLeft === 0 && secondsLeft === 0) {
-        bells.play();
-        clearInterval(myInterval);
-      }
-    };
-    myInterval = setInterval(updateSeconds, 1000);
-  } else {
-    alert('Session has already started.');
+  if (state.totalSeconds === 0) {
+    bells.play();
+    clearInterval(state.intervalId);
   }
 };
 
-startBtn.addEventListener("click", appTimer);
+
+const appTimer = () => {
+
+  bells.play();
+
+  if (state.isActive) {
+    clearInterval(state.intervalId);
+    startBtn.textContent = 'Start';
+    state.isActive = false;
+    return;
+  }
+
+  state.totalSeconds = +session.textContent * 60;
+  state.isActive = true;
+  startBtn.textContent = 'Pause';
+
+  myInterval = setInterval(updateSeconds, 1000);
+};
+
+startBtn.addEventListener('click', appTimer);
